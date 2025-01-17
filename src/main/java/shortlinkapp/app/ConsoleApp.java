@@ -114,6 +114,7 @@ public class ConsoleApp {
         if(uuid != null) {
             UserService.loginUser(uuid, newUuid -> currentUser = newUuid); // Установка текущего пользователя
             startService();
+            printMainMenu();
         } else{
             System.out.println("Ошибка авторизации.");
         }
@@ -137,6 +138,7 @@ public class ConsoleApp {
         if(uuid != null) {
             UserService.loginUser(UserService.getUserByID(userName).getUserUuid(), newUuid -> currentUser = newUuid); // Установка текущего пользователя
             startService();
+            printMainMenu();
         } else{
             System.out.println("Ошибка авторизации.");
         }

@@ -37,18 +37,20 @@ public class ShortLinkService {
         }
 
 
-        int finalTtl = Math.min(Config.getMaxTtl(), Math.max(Config.getMinTtl(), userTTL));
-        int finalLimit = Math.min(Config.getMaxLimit(), Math.max(Config.getMinLimit(), userLimit));
-
+        int finalTtl = Math.min(Config.getMaxTime(), Math.max(Config.getMinTime(), userTTL));
+        int finalLimit = Math.max(Config.getMaxLimit(), Math.max(Config.getMinLimit(), userLimit));
+        String domen = Config.getDomen();
 
         String shortId = generateShortId();
 
+        String shortUrl = domen + "/" + shortId;
 
         long expiryTime = System.currentTimeMillis() + Math.max(1, finalTtl * 3600000L);
 
 
         ShortLink link = new ShortLink(
                 shortId,
+                shortUrl,
                 originalUrl,
                 System.currentTimeMillis(),
                 expiryTime,
@@ -62,6 +64,7 @@ public class ShortLinkService {
 
         System.out.println("Ссылка создана:\n" +
                 "\tID ссылки:\t\t\t" + shortId + "\n" +
+                "\tURL ссылки:\t\t\t" + shortUrl + "\n" +
                 "\tВремя жизни:\t\t" + finalTtl + " часов" + "\n" +
                 "\tЛимит переходов:\t" + finalLimit + "\n");
 
@@ -82,8 +85,10 @@ public class ShortLinkService {
         }
 
 
-        System.out.println("Текущая метка времени: " + System.currentTimeMillis());
-        System.out.println("Время истечения: " + link.getExpiryTime());
+        //System.out.println("Текущая метка времени: " + System.currentTimeMillis());
+        //System.out.println("Время истечения: " + link.getExpiryTime());
+        System.out.println("Срок действия ссылки истекает через: " + (link.getExpiryTime() - System.currentTimeMillis()) / 3600000);
+
         if (System.currentTimeMillis() > link.getExpiryTime()) {
             notifyUser("Срок действия ссылки с идентификатором " + shortId + " истёк.");
             throw new RuntimeException("Срок действия короткой ссылки истек");
@@ -94,7 +99,7 @@ public class ShortLinkService {
         System.out.println("Лимит переходов: " + link.getLimit());
         if (link.getCurrentCount() >= link.getLimit()) {
             notifyUser("Ссылка с идентификатором " + shortId + " превысила лимит переходов.");
-            throw new RuntimeException("Количество коротких ссылок превысило установленный лимит");
+            throw new RuntimeException("Количество переходов по короткой ссылке превысило установленный лимит");
         }
 
 
@@ -169,7 +174,7 @@ public class ShortLinkService {
         }
 
 
-        int adjustedTTL = Math.min(Config.getMaxTtl(), Math.max(Config.getMinTtl(), newTTL));
+        int adjustedTTL = Math.min(Config.getMaxTime(), Math.max(Config.getMinTime(), newTTL));
         if (adjustedTTL != newTTL) {
             notifyUser("Срок действия " + newTTL + " часов был скорректирован до " + adjustedTTL + ".");
         }
@@ -306,7 +311,9 @@ public class ShortLinkService {
             } else {
                 System.out.println("Ваши ссылки:");
                 for (ShortLink link : userLinks) {
-                    System.out.printf("ID ссылки:\t" + link.getShortId() + " -> %s (лимит: %d, переходов: %d, истекает через: %d часов)\n",
+                    System.out.printf("ID ссылки:\t" + link.getShortId() +
+                            "\tURL: " + link.getShortUrl() +
+                            " -> %s (лимит: %d, переходов: %d, истекает через: %d часов)\n",
                             link.getOriginalUrl(), link.getLimit(), link.getCurrentCount(),
                             (link.getExpiryTime() - System.currentTimeMillis()) / 3600000);
                 }

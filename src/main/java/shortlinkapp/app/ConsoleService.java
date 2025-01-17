@@ -57,13 +57,13 @@ public class ConsoleService {
     }
 
     private void printLinkMenu() {
-        System.out.println("Доступные команды, укажите номер:");
+        System.out.println("Доступные операции, укажите номер:");
         System.out.println("\t1 - Создание короткой ссылки");
         System.out.println("\t2 - Просмотр всех ссылок пользователя");
-        System.out.println("\t3 - Удаление ссылки <shortId>");
-        System.out.println("\t4 - Изменение лимита переходов <shortId> <newLimit>");
-        System.out.println("\t5 - Изменение времени жизни ссылки <shortId> <newTTL>");
-        System.out.println("\t6 - Переход по ссылке <shortId>");
+        System.out.println("\t3 - Удаление ссылки");
+        System.out.println("\t4 - Изменение лимита переходов");
+        System.out.println("\t5 - Изменение времени жизни ссылки");
+        System.out.println("\t6 - Переход по ссылке");
         System.out.println("\t7 - Удаление устаревших ссылок");
         System.out.println("\tstop: Возврат в главное меню");
         System.out.println("\tlist: Список доступных операций");
@@ -79,22 +79,22 @@ public class ConsoleService {
                     shortUrl();
                     break;
                 case "2":
-                    listUrl();
+                    listLink();
                     break;
              case "3":
-                    //deleteUrl(parts);
+                    deleteLink();
                     break;
                 case "4":
-                    //editLimitUrl(parts);
+                    setLinkLimit();
                     break;
                 case "5":
-                    //editExpiryUrl(parts);
+                    setLinkTime();
                     break;
                 case "6":
                     gotoLink();
                     break;
                 case "7":
-                    //cleanUrl();
+                    cleanLinks();
                     break;
                 case "list":
                     printLinkMenu();
@@ -109,6 +109,7 @@ public class ConsoleService {
         }
     }
 
+    // Проверка авторизации
     private void isLogged() {
         if (currentUserUUID == null) {
             throw new IllegalStateException("Необходимо авторизоваться для выполнения команды.");
@@ -118,24 +119,86 @@ public class ConsoleService {
     private void shortUrl() {
 
         System.out.println("Введите длинную ссылку:");
+        System.out.print("> ");
         String longURL = consoleIn.nextLine();
 
-        isLogged(); // Проверка авторизации
-        shortLinkService.createShortLink(longURL, currentUserUUID, Config.getMaxTtl(), Config.getMaxLimit());
+        isLogged();
+        shortLinkService.createShortLink(longURL, currentUserUUID, Config.getMaxTime(), Config.getMaxLimit());
+
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
     }
 
-    private void listUrl() {
+    private void listLink() {
         isLogged();
         shortLinkService.getUserLinks(currentUserUUID, true);
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
+    }
+
+    private void deleteLink() {
+
+        System.out.println("Введите короткую ссылку для удаления:");
+        String shortURL = consoleIn.nextLine();
+
+        isLogged();
+        shortLinkService.deleteShortLink(shortURL, currentUserUUID);
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
+    }
+
+    private void setLinkLimit() {
+
+        System.out.println("Введите через пробел короткую ссылку и новый лимит переходов:");
+        System.out.print("> ");
+        String stringLine = consoleIn.nextLine();
+        String[] stringParts = stringLine.split(" ");
+        String shortURL = stringParts[0];
+        String newLimit = stringParts[1];
+
+        isLogged();
+        shortLinkService.editRedirectLimit(shortURL, Integer.parseInt(newLimit), currentUserUUID);
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
+    }
+
+    private void setLinkTime() {
+
+        System.out.println("Введите через пробел короткую ссылку и новое время жизни (в часах):");
+        System.out.print("> ");
+        String stringLine = consoleIn.nextLine();
+        String[] stringParts = stringLine.split(" ");
+        String shortID = stringParts[0];
+        String newTime = stringParts[1];
+
+        isLogged();
+        shortLinkService.editExpiryTime(shortID, Integer.parseInt(newTime), currentUserUUID);
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
     }
 
     private void gotoLink() {
-        System.out.println("Введите идентификатор короткой ссылки:");
+        System.out.println("Введите короткую ссылку или URL короткой ссылки для перехода\n" +
+                "например, [ Zl9bWO ] или [ clck.ru/Zl9bWO ]:");
+        System.out.print("> ");
+        String shortID;
 
-        String shortURL = consoleIn.nextLine();
-        isLogged(); // Проверка авторизации
-        shortLinkService.openInBrowser(shortLinkService.getOriginalUrl(shortURL).getOriginalUrl());
+        String stringLine = consoleIn.nextLine();
+        String[] partsLine = stringLine.split("/");
+        if(partsLine.length == 1) shortID = partsLine[0];
+        else shortID = partsLine[1];
+
+        isLogged();
+        shortLinkService.openInBrowser(shortLinkService.getOriginalUrl(shortID).getOriginalUrl());
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
     }
 
+    private void cleanLinks() {
+        isLogged(); // Проверка авторизации
+        shortLinkService.cleanUpExpiredLinks(currentUserUUID);
+        System.out.println("\nВведите 'list' для вывода списка доступных операций\n" +
+                "или 'stop' для возврата в главное меню.");
+    }
 
 }

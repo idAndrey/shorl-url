@@ -4,8 +4,9 @@ import java.util.UUID;
 
 public class ShortLink {
 
-   private String shortId;
+    private String shortId;
 
+    private String shortUrl;
 
     private String originalUrl;
 
@@ -25,12 +26,12 @@ public class ShortLink {
     private UUID userUuid;
 
 
-    @SuppressWarnings("unused")
     public ShortLink() {
     }
 
 
     public ShortLink(String shortId,
+                     String shortUrl,
                      String originalUrl,
                      long createdAt,
                      long expiryTime,
@@ -38,6 +39,7 @@ public class ShortLink {
                      int currentCount,
                      UUID userUuid) {
         this.shortId = shortId;
+        this.shortUrl = shortUrl;
         this.originalUrl = originalUrl;
         this.createdAt = createdAt;
         this.expiryTime = expiryTime;
@@ -52,10 +54,13 @@ public class ShortLink {
     }
 
 
+    public String getShortUrl() {
+        return shortUrl;
+    }
+
     public String getOriginalUrl() {
         return originalUrl;
     }
-
 
     public long getExpiryTime() {
         return expiryTime;
@@ -96,6 +101,7 @@ public class ShortLink {
     public String toString() {
         return "ShortLink{" +
                 "shortId='" + shortId + '\'' +
+                ", shortUrl='" + shortUrl + '\'' +
                 ", originalUrl='" + originalUrl + '\'' +
                 ", createdAt=" + createdAt +
                 ", expiryTime=" + expiryTime +
