@@ -92,6 +92,7 @@ public class ConsoleApp {
     private void registerUser(String[] parts) {
 
         System.out.println("Введите имя пользователя для регистрации");
+        System.out.print("> ");
         String userName = consoleIn.nextLine();
 
         UserService.createUser(userName);
@@ -103,6 +104,7 @@ public class ConsoleApp {
         uuid = null;
 
         System.out.println("Введите UUID для входа");
+        System.out.print("> ");
         String strUUID = consoleIn.nextLine();
 
         try{
@@ -126,7 +128,8 @@ public class ConsoleApp {
         UUID uuid;
         uuid = null;
 
-        System.out.println("Введите логин (имя пользователя))");
+        System.out.println("Введите логин (имя пользователя)");
+        System.out.print("> ");
         String userName = consoleIn.nextLine();
 
         try{

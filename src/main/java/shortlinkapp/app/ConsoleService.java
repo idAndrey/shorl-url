@@ -39,7 +39,7 @@ public class ConsoleService {
         User currentUser = userService.getUser(currentUserUUID);
 
         System.out.println("\nМеню работы со ссылками\n" +
-                "Логин: " + currentUser.getUserName() +
+                "Логин: " + currentUser.getUserName() + "\n" +
                 "UUID: " + currentUser.getUserUuid());
         printLinkMenu(); // Вывод списка операций
 
