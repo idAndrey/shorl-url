@@ -139,6 +139,7 @@ public class ConsoleService {
     private void deleteLink() {
 
         System.out.println("Введите короткую ссылку для удаления:");
+        System.out.print("> ");
         String shortURL = consoleIn.nextLine();
 
         isLogged();
